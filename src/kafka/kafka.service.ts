@@ -26,10 +26,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     try {
       // Connect producer and consumer
       await this.producer.connect();
-      console.log('Kafka Producer connected successfully');
-      
+  
       await this.consumer.connect();
-      console.log('Kafka Consumer connected successfully');
+ 
 
       // Ensure topic exists (create if it doesn't)
       await this.ensureTopicExists(this.config.kafka.topics.example);
@@ -37,11 +36,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       // Subscribe to topic with retry logic
       await this.subscribeWithRetry();
 
-      console.log('Kafka Producer and Consumer are ready');
+
     } catch (error) {
-      console.error('Failed to initialize Kafka connections:', error.message);
-      console.error(`Make sure Kafka is running on ${this.config.kafka.brokers.join(', ')}`);
-      console.error('You can start Kafka using: docker-compose up -d');
+
       // Don't throw - allow the app to start even if Kafka is not available
       // The service will retry on next message send
     }
@@ -60,11 +57,11 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
             replicationFactor: 1,
           }],
         });
-        console.log(`Created topic: ${topicName}`);
+
       }
       await admin.disconnect();
     } catch (error) {
-      console.warn(`Could not ensure topic exists (it may be created automatically): ${error.message}`);
+ 
       try {
         await admin.disconnect();
       } catch {
@@ -81,16 +78,16 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         // Listen for messages
         await this.consumer.run({
           eachMessage: async ({ topic, partition, message }: EachMessagePayload) => {
-            console.log(`Received message from topic ${topic}, partition ${partition}: ${message.value?.toString()}`);
+
           },
         });
         return; // Success
       } catch (error) {
         if (attempt === maxRetries) {
-          console.error(`Failed to subscribe after ${maxRetries} attempts:`, error.message);
+          
           throw error;
         }
-        console.warn(`Subscription attempt ${attempt} failed, retrying in ${delayMs}ms...`);
+      
         await new Promise(resolve => setTimeout(resolve, delayMs));
       }
     }
@@ -102,9 +99,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         topic: this.config.kafka.topics.example,
         messages: [{ value: message }],
       });
-      console.log(`Sent message to topic ${this.config.kafka.topics.example}: ${message}`);
+     
     } catch (error) {
-      console.error('Failed to send message to Kafka:', error.message);
+    
       throw error;
     }
   }
