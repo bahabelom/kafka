@@ -10,6 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = configuration();
   await app.listen(config.app.port);
-  console.log(`Application is running on: http://localhost:${config.app.port}`);
+  
 }
 bootstrap();
